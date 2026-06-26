@@ -3,10 +3,12 @@ dist/
 
 # generated types
 .astro/
+.vscode
+.env
 
 # dependencies
 node_modules/
-
+package-lock.json
 # logs
 npm-debug.log*
 yarn-debug.log*

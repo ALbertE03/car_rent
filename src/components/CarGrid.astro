@@ -1,0 +1,70 @@
+---
+import CarCard from "./CarCard.astro";
+
+export interface Props {
+  brand: string;
+  cars: Array<{
+    slug: string;
+    color: string;
+    model: string;
+    brand: string;
+    year: number;
+    plate: string;
+    pricePerDay: number;
+    available: boolean;
+    photos: { front: string };
+  }>;
+}
+
+const { brand, cars } = Astro.props;
+---
+
+<section id="vehicles" class="car-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>{brand}</h2>
+    </div>
+    <div class="cars-grid">
+      {cars.map((car) => <CarCard {...car} />)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .car-section {
+    padding: 48px 0;
+  }
+
+  .car-section:first-of-type {
+    padding-top: 80px;
+  }
+
+  .section-header {
+    margin-bottom: 32px;
+    margin: 3%;
+  }
+
+  .section-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .cars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  @media (max-width: 900px) {
+    .cars-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .cars-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

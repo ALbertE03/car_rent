@@ -1,0 +1,458 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import { cars, getCarBySlug } from '../../data/cars'
+
+export function getStaticPaths() {
+  return cars.map((car) => ({
+    params: { slug: car.slug },
+    props: { car },
+  }))
+}
+
+const { car } = Astro.props
+
+const views = [
+  { key: 'front', label: 'Front' },
+  { key: 'side', label: 'Side' },
+  { key: 'back', label: 'Back' },
+  { key: 'rear', label: 'Rear' },
+]
+---
+
+<Layout>
+  <Header />
+  <main class="detail-page">
+    <div class="container">
+      <a href="/#vehicles" class="back-link">&larr; Back to fleet</a>
+
+      <div class="detail-grid">
+        <div class="gallery">
+          <div class="main-image">
+            <img
+              src={car.photos.front}
+              alt={`${car.color} ${car.brand} ${car.model}`}
+            />
+          </div>
+          <div class="thumbnails">
+            {views.map((view) => (
+              <button
+                class="thumb"
+                data-view={view.key}
+              >
+                <img
+                  src={car.photos[view.key] || car.photos.front}
+                  alt={`${view.label} view`}
+                  loading="lazy"
+                />
+                <span>{view.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div class="info">
+          <div class="info-header">
+            <h1>{car.color} {car.brand} {car.model}</h1>
+            <span class="plate">{car.plate}</span>
+          </div>
+
+          <p class="description">{car.description}</p>
+
+          <div class="specs">
+            <h3>Specifications</h3>
+            <div class="specs-grid">
+              <div class="spec-item">
+                <span class="spec-label">Year</span>
+                <span class="spec-value">{car.year}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Engine</span>
+                <span class="spec-value">{car.specs.engine}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Transmission</span>
+                <span class="spec-value">{car.specs.transmission}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Fuel</span>
+                <span class="spec-value">{car.specs.fuel}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Seats</span>
+                <span class="spec-value">{car.specs.seats}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Doors</span>
+                <span class="spec-value">{car.specs.doors}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Mileage</span>
+                <span class="spec-value">{car.specs.mileage}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="price-box">
+            <div class="price-main">
+              <span class="price-amount">${car.pricePerDay}</span>
+              <span class="price-period">per day</span>
+            </div>
+            <p class="price-note">Long-term rentals available at discounted rates. Contact us for a quote.</p>
+          </div>
+
+          <div class="reservation-section" id="reserve">
+            <h2>Reserve This Vehicle</h2>
+            {car.available ? (
+              <form class="reservation-form" action="#" method="post">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required placeholder="Your full name" />
+                  </div>
+                  <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="your@email.com" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" required placeholder="+1 (555) 000-0000" />
+                  </div>
+                  <div class="form-group">
+                    <label for="days">Rental Days</label>
+                    <input type="number" id="days" name="days" min="1" value="1" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="message">Additional Notes</label>
+                  <textarea id="message" name="message" rows="3" placeholder="Any special requests..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Send Reservation Request</button>
+              </form>
+            ) : (
+              <div class="unavailable-message">
+                <p>This vehicle is currently on long-term rental. Please check back later or contact us for other available options.</p>
+                <a href="/#vehicles" class="browse-btn">Browse Other Vehicles</a>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .detail-page {
+    padding: 48px 0;
+    min-height: 80vh;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 32px;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover {
+    color: #1a1a1a;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .gallery {
+    position: sticky;
+    top: 88px;
+  }
+
+  .main-image {
+    aspect-ratio: 4/3;
+    background: #f5f5f5;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    margin-bottom: 16px;
+  }
+
+  .main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .thumbnails {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .thumb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: #f5f5f5;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    font-family: inherit;
+    font-size: 11px;
+    color: #999;
+  }
+
+  .thumb:hover,
+  .thumb.active {
+    border-color: #1a1a1a;
+  }
+
+  .thumb img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: contain;
+  }
+
+  .info-header {
+    margin-bottom: 20px;
+  }
+
+  .info-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .plate {
+    font-size: 14px;
+    color: #999;
+    font-weight: 500;
+  }
+
+  .description {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+
+  .specs {
+    margin-bottom: 32px;
+  }
+
+  .specs h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .specs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .spec-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .spec-label {
+    color: #999;
+  }
+
+  .spec-value {
+    font-weight: 600;
+  }
+
+  .price-box {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+
+  .price-main {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .price-amount {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -1px;
+  }
+
+  .price-period {
+    font-size: 14px;
+    color: #999;
+  }
+
+  .price-note {
+    font-size: 13px;
+    color: #999;
+  }
+
+  .reservation-section {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 16px;
+    padding: 32px;
+  }
+
+  .reservation-section h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .reservation-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    padding: 12px 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    background: #fafafa;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #1a1a1a;
+    background: white;
+  }
+
+  .submit-btn {
+    padding: 14px 24px;
+    background: #1a1a1a;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+
+  .submit-btn:hover {
+    background: #333;
+  }
+
+  .unavailable-message {
+    text-align: center;
+    padding: 32px;
+  }
+
+  .unavailable-message p {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+
+  .browse-btn {
+    display: inline-flex;
+    padding: 12px 24px;
+    background: #1a1a1a;
+    color: white;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+
+  .browse-btn:hover {
+    background: #333;
+  }
+
+  @media (max-width: 768px) {
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .gallery {
+      position: static;
+    }
+
+    .info-header h1 {
+      font-size: 24px;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .specs-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .thumbnails {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>
+
+<script>
+  const mainImg = document.querySelector('.main-image img')
+  const thumbs = document.querySelectorAll('.thumb')
+
+  thumbs.forEach((thumb) => {
+    thumb.addEventListener('click', () => {
+      const view = thumb.dataset.view
+      const src = thumb.querySelector('img').src
+      mainImg.src = src
+
+      thumbs.forEach((t) => t.classList.remove('active'))
+      thumb.classList.add('active')
+    })
+  })
+</script>
