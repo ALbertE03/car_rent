@@ -1,54 +1,60 @@
 ---
-import Layout from '../../layouts/Layout.astro'
-import Header from '../../components/Header.astro'
-import Footer from '../../components/Footer.astro'
-import { cars, getCarBySlug } from '../../data/cars'
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import { cars } from "../../data/cars";
 
 export function getStaticPaths() {
   return cars.map((car) => ({
     params: { slug: car.slug },
     props: { car },
-  }))
+  }));
 }
 
-const { car } = Astro.props
+const { car } = Astro.props;
 
 const views = [
-  { key: 'front', label: 'Front' },
-  { key: 'side', label: 'Side' },
-  { key: 'back', label: 'Back' },
-  { key: 'rear', label: 'Rear' },
-]
+  { key: "front", label: "Front" },
+  { key: "side", label: "Side" },
+  { key: "back", label: "Back" },
+];
+
+const phone = "18091234567";
+const waMsg = encodeURIComponent(
+  `Hi! I'm interested in the ${car.color} ${car.brand} ${car.model} (${car.plate}) — $${car.pricePerDay}/day.\n\nModel: ${car.model} ${car.year}\nColor: ${car.color}\nTransmission: ${car.specs.transmission}\nFuel: ${car.specs.fuel}\nSeats: ${car.specs.seats}\n\nIs it available for rent?`
+);
 ---
 
 <Layout>
   <Header />
   <main class="detail-page">
     <div class="container">
-      <a href="/#vehicles" class="back-link">&larr; Back to fleet</a>
+      <a href="/" class="back-link">&larr; Back to fleet</a>
 
       <div class="detail-grid">
         <div class="gallery">
-          <div class="main-image">
-            <img
-              src={car.photos.front}
-              alt={`${car.color} ${car.brand} ${car.model}`}
-            />
+          <div class="gallery-stage">
+            <div class="main-image">
+              <img
+                src={car.photos.front}
+                alt={`${car.color} ${car.brand} ${car.model}`}
+              />
+            </div>
+            <div class="gallery-floor"></div>
           </div>
           <div class="thumbnails">
-            {views.map((view) => (
-              <button
-                class="thumb"
-                data-view={view.key}
-              >
-                <img
-                  src={car.photos[view.key] || car.photos.front}
-                  alt={`${view.label} view`}
-                  loading="lazy"
-                />
-                <span>{view.label}</span>
-              </button>
-            ))}
+            {
+              views.map((view) => (
+                <button class="thumb" data-view={view.key}>
+                  <img
+                    src={car.photos[view.key] || car.photos.front}
+                    alt={`${view.label} view`}
+                    loading="lazy"
+                  />
+                  <span>{view.label}</span>
+                </button>
+              ))
+            }
           </div>
         </div>
 
@@ -87,10 +93,13 @@ const views = [
                 <span class="spec-label">Doors</span>
                 <span class="spec-value">{car.specs.doors}</span>
               </div>
-              <div class="spec-item">
-                <span class="spec-label">Mileage</span>
-                <span class="spec-value">{car.specs.mileage}</span>
-              </div>
+            </div>
+          </div>
+
+          <div class="features">
+            <h3>Features</h3>
+            <div class="features-list">
+              {car.features.map((f) => <span class="feature-tag">{f}</span>)}
             </div>
           </div>
 
@@ -99,45 +108,27 @@ const views = [
               <span class="price-amount">${car.pricePerDay}</span>
               <span class="price-period">per day</span>
             </div>
-            <p class="price-note">Long-term rentals available at discounted rates. Contact us for a quote.</p>
+            <p class="price-note">
+              Long-term rentals available at discounted rates. Contact us for a quote.
+            </p>
           </div>
 
           <div class="reservation-section" id="reserve">
             <h2>Reserve This Vehicle</h2>
-            {car.available ? (
-              <form class="reservation-form" action="#" method="post">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" required placeholder="Your full name" />
-                  </div>
-                  <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required placeholder="your@email.com" />
-                  </div>
+            {
+              car.available ? (
+                <a href={`https://wa.me/${phone}?text=${waMsg}`} target="_blank" rel="noopener" class="whatsapp-btn">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  Inquire via WhatsApp
+                </a>
+                <p class="wa-hint">You'll be able to send a message with the full details of this vehicle.</p>
+              ) : (
+                <div class="unavailable-message">
+                  <p>This vehicle is currently on long-term rental. Please check back later or contact us for other options.</p>
+                  <a href="/" class="browse-btn">Browse Other Vehicles</a>
                 </div>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="phone">Phone</label>
-                    <input type="tel" id="phone" name="phone" required placeholder="+1 (555) 000-0000" />
-                  </div>
-                  <div class="form-group">
-                    <label for="days">Rental Days</label>
-                    <input type="number" id="days" name="days" min="1" value="1" required />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="message">Additional Notes</label>
-                  <textarea id="message" name="message" rows="3" placeholder="Any special requests..."></textarea>
-                </div>
-                <button type="submit" class="submit-btn">Send Reservation Request</button>
-              </form>
-            ) : (
-              <div class="unavailable-message">
-                <p>This vehicle is currently on long-term rental. Please check back later or contact us for other available options.</p>
-                <a href="/#vehicles" class="browse-btn">Browse Other Vehicles</a>
-              </div>
-            )}
+              )
+            }
           </div>
         </div>
       </div>
@@ -148,8 +139,12 @@ const views = [
 
 <style>
   .detail-page {
-    padding: 48px 0;
+    padding: 48px 24px;
     min-height: 80vh;
+  }
+
+  .detail-page .container {
+    padding: 0;
   }
 
   .back-link {
@@ -157,13 +152,13 @@ const views = [
     align-items: center;
     font-size: 14px;
     font-weight: 500;
-    color: #666;
+    color: #64748b;
     margin-bottom: 32px;
     transition: color 0.2s;
   }
 
   .back-link:hover {
-    color: #1a1a1a;
+    color: #0f172a;
   }
 
   .detail-grid {
@@ -178,26 +173,44 @@ const views = [
     top: 88px;
   }
 
+  .gallery-stage {
+    background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 60%, #d1d5db 100%);
+    border-radius: 20px;
+    padding: 40px 32px 20px;
+    margin-bottom: 16px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .gallery-floor {
+    width: 60%;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 50%;
+    filter: blur(3px);
+    margin-top: 8px;
+  }
+
   .main-image {
-    aspect-ratio: 4/3;
-    background: #f5f5f5;
-    border-radius: 16px;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 32px;
-    margin-bottom: 16px;
   }
 
   .main-image img {
     width: 100%;
-    height: 100%;
+    height: auto;
+    max-height: 320px;
     object-fit: contain;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.08));
   }
 
   .thumbnails {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
   }
 
@@ -206,25 +219,26 @@ const views = [
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    background: #f5f5f5;
+    background: #f8fafc;
     border: 2px solid transparent;
-    border-radius: 10px;
-    padding: 10px;
+    border-radius: 12px;
+    padding: 12px 8px;
     cursor: pointer;
-    transition: border-color 0.2s;
+    transition: all 0.2s;
     font-family: inherit;
     font-size: 11px;
-    color: #999;
+    color: #94a3b8;
   }
 
   .thumb:hover,
   .thumb.active {
-    border-color: #1a1a1a;
+    border-color: #0f172a;
+    background: white;
   }
 
   .thumb img {
     width: 100%;
-    aspect-ratio: 4/3;
+    height: 80px;
     object-fit: contain;
   }
 
@@ -237,29 +251,31 @@ const views = [
     font-weight: 700;
     letter-spacing: -0.5px;
     margin-bottom: 6px;
+    color: #0f172a;
   }
 
   .plate {
     font-size: 14px;
-    color: #999;
+    color: #94a3b8;
     font-weight: 500;
   }
 
   .description {
     font-size: 15px;
-    color: #555;
+    color: #64748b;
     line-height: 1.7;
     margin-bottom: 32px;
   }
 
   .specs {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
   }
 
   .specs h3 {
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 16px;
+    color: #0f172a;
   }
 
   .specs-grid {
@@ -272,17 +288,44 @@ const views = [
     display: flex;
     justify-content: space-between;
     padding: 10px 14px;
-    background: #f5f5f5;
+    background: #f8fafc;
     border-radius: 8px;
     font-size: 13px;
   }
 
   .spec-label {
-    color: #999;
+    color: #94a3b8;
   }
 
   .spec-value {
     font-weight: 600;
+    color: #0f172a;
+  }
+
+  .features {
+    margin-bottom: 32px;
+  }
+
+  .features h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #0f172a;
+  }
+
+  .features-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .feature-tag {
+    padding: 6px 14px;
+    background: #eef2f6;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #0f172a;
+    font-weight: 500;
   }
 
   .price-box {
@@ -290,7 +333,7 @@ const views = [
     border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 12px;
     padding: 20px 24px;
-    margin-bottom: 40px;
+    margin-bottom: 32px;
   }
 
   .price-main {
@@ -304,16 +347,17 @@ const views = [
     font-size: 36px;
     font-weight: 700;
     letter-spacing: -1px;
+    color: #0f172a;
   }
 
   .price-period {
     font-size: 14px;
-    color: #999;
+    color: #94a3b8;
   }
 
   .price-note {
     font-size: 13px;
-    color: #999;
+    color: #94a3b8;
   }
 
   .reservation-section {
@@ -327,65 +371,37 @@ const views = [
     font-size: 22px;
     font-weight: 600;
     margin-bottom: 24px;
+    color: #0f172a;
   }
 
-  .reservation-form {
+  .whatsapp-btn {
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .form-group label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #333;
-  }
-
-  .form-group input,
-  .form-group textarea {
-    padding: 12px 14px;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 14px;
-    font-family: inherit;
-    transition: border-color 0.2s;
-    background: #fafafa;
-  }
-
-  .form-group input:focus,
-  .form-group textarea:focus {
-    outline: none;
-    border-color: #1a1a1a;
-    background: white;
-  }
-
-  .submit-btn {
-    padding: 14px 24px;
-    background: #1a1a1a;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 24px;
+    background: #25D366;
     color: white;
     border: none;
-    border-radius: 10px;
-    font-size: 15px;
+    border-radius: 12px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
-    margin-top: 8px;
+    text-decoration: none;
+    box-sizing: border-box;
   }
 
-  .submit-btn:hover {
-    background: #333;
+  .whatsapp-btn:hover {
+    background: #1da851;
+  }
+
+  .wa-hint {
+    font-size: 12px;
+    color: #94a3b8;
+    text-align: center;
+    margin-top: 12px;
   }
 
   .unavailable-message {
@@ -395,26 +411,31 @@ const views = [
 
   .unavailable-message p {
     font-size: 15px;
-    color: #666;
+    color: #64748b;
     margin-bottom: 20px;
   }
 
   .browse-btn {
     display: inline-flex;
     padding: 12px 24px;
-    background: #1a1a1a;
+    background: #0f172a;
     color: white;
     border-radius: 10px;
     font-size: 14px;
     font-weight: 600;
     transition: background 0.2s;
+    text-decoration: none;
   }
 
   .browse-btn:hover {
-    background: #333;
+    background: #1e293b;
   }
 
   @media (max-width: 768px) {
+    .detail-page {
+      padding: 32px 16px;
+    }
+
     .detail-grid {
       grid-template-columns: 1fr;
     }
@@ -423,12 +444,16 @@ const views = [
       position: static;
     }
 
-    .info-header h1 {
-      font-size: 24px;
+    .gallery-stage {
+      padding: 24px 16px 16px;
     }
 
-    .form-row {
-      grid-template-columns: 1fr;
+    .main-image img {
+      max-height: 240px;
+    }
+
+    .info-header h1 {
+      font-size: 24px;
     }
 
     .specs-grid {
@@ -436,23 +461,26 @@ const views = [
     }
 
     .thumbnails {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .thumb img {
+      height: 60px;
     }
   }
 </style>
 
 <script>
-  const mainImg = document.querySelector('.main-image img')
-  const thumbs = document.querySelectorAll('.thumb')
+  const mainImg = document.querySelector(".main-image img");
+  const thumbs = document.querySelectorAll(".thumb");
 
   thumbs.forEach((thumb) => {
-    thumb.addEventListener('click', () => {
-      const view = thumb.dataset.view
-      const src = thumb.querySelector('img').src
-      mainImg.src = src
+    thumb.addEventListener("click", () => {
+      const src = thumb.querySelector("img")?.src;
+      if (src) mainImg.src = src;
 
-      thumbs.forEach((t) => t.classList.remove('active'))
-      thumb.classList.add('active')
-    })
-  })
+      thumbs.forEach((t) => t.classList.remove("active"));
+      thumb.classList.add("active");
+    });
+  });
 </script>
