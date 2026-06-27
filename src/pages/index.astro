@@ -11,8 +11,9 @@ import { getCarsByBrand } from "../data/cars";
   <Header />
   <main>
     <CarGrid brand="Suzuki" cars={getCarsByBrand("Suzuki")} />
-    <AboutInfo />
+    <AboutInfo brand="suzuki" />
     <CarGrid brand="Nissan" cars={getCarsByBrand("Nissan")} />
+    <!-- <AboutInfo brand="nissan" />-->
   </main>
   <Footer />
 </Layout>
