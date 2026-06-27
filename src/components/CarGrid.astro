@@ -72,13 +72,20 @@ const id = brand.toLowerCase();
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    gap: 20px;
-    flex-wrap: wrap;
+    gap: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     padding: 20px 5px 40px;
     min-height: 320px;
     background: linear-gradient(to bottom, #f8fafc 0%, #e9edf2 100%);
     border-radius: 20px;
     position: relative;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .galeria::-webkit-scrollbar {
+    display: none;
   }
 
   .galeria::after {
@@ -93,15 +100,31 @@ const id = brand.toLowerCase();
     filter: blur(3px);
   }
 
+  :global(.car-card) {
+    margin-left: -30px;
+  }
+
+  :global(.car-card:first-child) {
+    margin-left: 0;
+  }
+
   @media (max-width: 768px) {
     .car-section {
       padding: 20px 12px;
     }
 
     .galeria {
-      gap: 16px;
+      gap: 0;
       padding: 16px 5px 32px;
       min-height: auto;
+    }
+
+    :global(.car-card) {
+      margin-left: -20px;
+    }
+
+    :global(.car-card:first-child) {
+      margin-left: 0;
     }
 
     .galeria-wrapper {

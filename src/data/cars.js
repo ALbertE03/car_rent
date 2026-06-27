@@ -1,31 +1,5 @@
 export const cars = [
   {
-    slug: 'suzuki-ignis-gold-paq-852',
-    brand: 'Suzuki',
-    model: 'Ignis',
-    year: 2016,
-    color: 'Gold',
-    plate: 'PAQ 852',
-    available: true,
-    pricePerDay: 45,
-    photos: {
-      front: '/gold_suzuki_defrente.jpg',
-      side: '/gold_suzuki_delado.jpg',
-      main: "/oro.png",
-      back: '/gold_suzuki_detras.jpg',
-    },
-    description:
-      'Well-maintained Suzuki Ignis 2016 in elegant Gold. Perfect for city driving with great fuel economy and compact design.',
-    specs: {
-      engine: '1.2L 4-cylinder',
-      transmission: 'Manual',
-      fuel: 'Gasoline',
-      seats: 5,
-      doors: 5,
-    },
-    features: ['Air Conditioning', 'Power Steering', 'Bluetooth', 'CD Radio', 'ABS Brakes'],
-  },
-  {
     slug: 'suzuki-ignis-red-py-807',
     brand: 'Suzuki',
     model: 'Ignis',
@@ -51,6 +25,33 @@ export const cars = [
     },
     features: ['Air Conditioning', 'Power Steering', 'Bluetooth', 'CD Radio', 'ABS Brakes'],
   },
+  {
+    slug: 'suzuki-ignis-gold-paq-852',
+    brand: 'Suzuki',
+    model: 'Ignis',
+    year: 2016,
+    color: 'Gold',
+    plate: 'PAQ 852',
+    available: true,
+    pricePerDay: 45,
+    photos: {
+      front: '/gold_suzuki_defrente.png',
+      side: '/gold_suzuki_delado.png',
+      main: "/oro.png",
+      back: '/gold_suzuki_detras.png',
+    },
+    description:
+      'Well-maintained Suzuki Ignis 2016 in elegant Gold. Perfect for city driving with great fuel economy and compact design.',
+    specs: {
+      engine: '1.2L 4-cylinder',
+      transmission: 'Manual',
+      fuel: 'Gasoline',
+      seats: 5,
+      doors: 5,
+    },
+    features: ['Air Conditioning', 'Power Steering', 'Bluetooth', 'CD Radio', 'ABS Brakes'],
+  },
+
   {
     slug: 'suzuki-ignis-white-paq-855',
     brand: 'Suzuki',
@@ -87,10 +88,10 @@ export const cars = [
     available: true,
     pricePerDay: 45,
     photos: {
-      front: '/nissan_cube_z12_defrente.webp',
-      side: '/nissan_cube_z12_delado.webp',
+      front: '/gold_suzuki_defrente.png',
+      side: '/gold_suzuki_delado.png',
       main: "/oro.png",
-      back: '/nissan_cube_z12_detras.webp',
+      back: '/gold_suzuki_detras.png',
     },
     description:
       'Another elegant Gold Suzuki Ignis 2016. Reliable, fuel-efficient, and ready to take you wherever you need to go.',
@@ -139,10 +140,10 @@ export const cars = [
     available: false,
     pricePerDay: 50,
     photos: {
-      front: '/nissan_cube_z12_defrente.webp',
-      side: '/nissan_cube_z12_delado.webp',
+      front: '/nissan_cube_z12_defrente.png',
+      side: '/nissan_cube_z12_delado.png',
       main: "/cubo.png",
-      back: '/nissan_cube_z12_detras.webp',
+      back: '/nissan_cube_z12_detras.png',
     },
     description:
       'Spacious and quirky Nissan Cube in Brown. Currently on long-term rental — check back soon for availability.',
@@ -155,6 +156,7 @@ export const cars = [
     },
     features: ['Air Conditioning', 'Power Steering', 'Bluetooth', 'CD Radio', 'ABS Brakes'],
   },
+
 ]
 
 export function getCarBySlug(slug) {
