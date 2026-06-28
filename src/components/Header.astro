@@ -1,11 +1,18 @@
 ---
 import logoSvg from "../assets/file-1.svg";
+import { Image } from "astro:assets";
 ---
 
 <header>
   <div class="header-inner">
     <a href="/" class="logo">
-      <img src={logoSvg.src} alt="SJ & Associates" />
+      <Image
+        src={logoSvg}
+        alt="SJ & Associates"
+        width="300"
+        height="300"
+        loading="eager"
+      />
     </a>
     <div class="header-banner">
       <h1>Premium Car Rental</h1>

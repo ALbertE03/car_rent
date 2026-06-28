@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 export interface Props {
   slug: string;
   color: string;
@@ -26,12 +27,12 @@ const {
 
 <a href={`/cars/${slug}`} class="car-card">
   <div class="card-image">
-    <img
+    <Image
       src={photos.main}
       alt={`${color} ${brand} ${model} ${year}`}
       width="240"
       height="180"
-      loading="lazy"
+      loading="eager"
       decoding="async"
     />
   </div>
@@ -156,11 +157,11 @@ const {
     .card-image img {
       height: 250px;
     }
-    
+
     .card-info h3 {
       font-size: 18px;
     }
-    
+
     .plate {
       font-size: 14px;
     }
@@ -168,11 +169,11 @@ const {
     .price {
       font-size: 22px;
     }
-    
+
     .price span {
       font-size: 13px;
     }
-    
+
     .view-btn {
       font-size: 14px;
       padding: 8px 18px;

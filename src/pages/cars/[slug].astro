@@ -3,6 +3,8 @@ import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import { cars } from "../../data/cars";
+import { Image } from "astro:assets";
+import { process } from "zod/v4/core";
 
 export function getStaticPaths() {
   return cars.map((car) => ({
@@ -19,7 +21,7 @@ const views = [
   { key: "back", label: "Back" },
 ];
 
-const phone = "18091234567";
+const phone ="123"
 const waMsg = encodeURIComponent(
   `Hi! I'm interested in the ${car.color} ${car.brand} ${car.model} (${car.plate}) — $${car.pricePerDay}/day.\n\nModel: ${car.model} ${car.year}\nColor: ${car.color}\nTransmission: ${car.specs.transmission}\nFuel: ${car.specs.fuel}\nSeats: ${car.specs.seats}\n\nIs it available for rent?`
 );
@@ -35,9 +37,12 @@ const waMsg = encodeURIComponent(
         <div class="gallery">
           <div class="gallery-stage">
             <div class="main-image">
-              <img
+              <Image
                 src={car.photos.front}
                 alt={`${car.color} ${car.brand} ${car.model}`}
+                width="400"
+                height="300"
+                loading="eager"
               />
             </div>
             <div class="gallery-floor"></div>
@@ -46,11 +51,13 @@ const waMsg = encodeURIComponent(
             {
               views.map((view) => (
                 <button class="thumb" data-view={view.key}>
-                  <img
+                  <Image
                     src={car.photos[view.key] || car.photos.front}
                     alt={`${view.label} view`}
+                    width="100"
+                    height="80"
                     loading="lazy"
-                  />
+                                      />
                   <span>{view.label}</span>
                 </button>
               ))
