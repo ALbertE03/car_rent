@@ -80,12 +80,21 @@ const id = brand.toLowerCase();
     background: linear-gradient(to bottom, #f8fafc 0%, #e9edf2 100%);
     border-radius: 20px;
     position: relative;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
   }
 
   .galeria::-webkit-scrollbar {
-    display: none;
+    height: 6px;
+  }
+
+  .galeria::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .galeria::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
   }
 
   .galeria::after {
@@ -108,19 +117,32 @@ const id = brand.toLowerCase();
     margin-left: 0;
   }
 
+  @media (min-width: 1024px) {
+    .galeria {
+      min-height: 400px;
+    }
+    :global(.car-card) {
+      margin-left: -60px;
+    }
+    :global(.car-card:first-child) {
+      margin-left: 0;
+    }
+  }
+
   @media (max-width: 768px) {
     .car-section {
-      padding: 20px 12px;
+      padding: 20px 0; /* Removing side padding so it spans full width */
     }
 
     .galeria {
       gap: 0;
-      padding: 16px 5px 32px;
+      padding: 16px 20px 32px; /* Add some left/right padding inside the scroll area */
       min-height: auto;
+      justify-content: flex-start; /* Start from the left so overflow is obvious */
     }
 
     :global(.car-card) {
-      margin-left: -20px;
+      margin-left: -30px;
     }
 
     :global(.car-card:first-child) {
@@ -128,7 +150,8 @@ const id = brand.toLowerCase();
     }
 
     .galeria-wrapper {
-      padding: 20px 8px 5px;
+      padding: 20px 0 5px; /* Adjust wrapper padding */
+      border-radius: 0; /* Remove border-radius on mobile to look like a full-width slider */
     }
   }
 </style>

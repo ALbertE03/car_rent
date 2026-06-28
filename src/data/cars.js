@@ -137,7 +137,7 @@ export const cars = [
     year: 2016,
     color: 'Brown',
     plate: 'PR 945',
-    available: false,
+    available: true,
     pricePerDay: 50,
     photos: {
       front: '/nissan_cube_z12_defrente.png',

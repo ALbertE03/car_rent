@@ -83,7 +83,7 @@ const {
   }
 
   .car-card:hover .card-image img {
-    transform: scale(1.2) translateY(-22px);
+    transform: scale(1.2) translateY(15px);
     z-index: 999;
     filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.12)) brightness(1.04);
   }
@@ -148,13 +148,44 @@ const {
     cursor: not-allowed;
   }
 
-  @media (max-width: 768px) {
+  @media (min-width: 1024px) {
     .car-card {
-      width: 160px;
+      width: 280px;
     }
 
     .card-image img {
-      height: 140px;
+      height: 250px;
+    }
+    
+    .card-info h3 {
+      font-size: 18px;
+    }
+    
+    .plate {
+      font-size: 14px;
+    }
+
+    .price {
+      font-size: 22px;
+    }
+    
+    .price span {
+      font-size: 13px;
+    }
+    
+    .view-btn {
+      font-size: 14px;
+      padding: 8px 18px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .car-card {
+      width: 220px;
+    }
+
+    .card-image img {
+      height: 180px;
     }
   }
 </style>
