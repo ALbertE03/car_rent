@@ -4,7 +4,6 @@ import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import { cars } from "../../data/cars";
 import { Image } from "astro:assets";
-import { process } from "zod/v4/core";
 
 export function getStaticPaths() {
   return cars.map((car) => ({
@@ -21,7 +20,7 @@ const views = [
   { key: "back", label: "Back" },
 ];
 
-const phone ="123"
+const phone = import.meta.env.PHONE || "";
 const waMsg = encodeURIComponent(
   `Hi! I'm interested in the ${car.color} ${car.brand} ${car.model} (${car.plate}) — $${car.pricePerDay}/day.\n\nModel: ${car.model} ${car.year}\nColor: ${car.color}\nTransmission: ${car.specs.transmission}\nFuel: ${car.specs.fuel}\nSeats: ${car.specs.seats}\n\nIs it available for rent?`
 );
@@ -42,7 +41,8 @@ const waMsg = encodeURIComponent(
                 alt={`${car.color} ${car.brand} ${car.model}`}
                 width="400"
                 height="300"
-                loading="eager"
+                loading="lazy"
+                fetchpriority="high"
               />
             </div>
             <div class="gallery-floor"></div>
