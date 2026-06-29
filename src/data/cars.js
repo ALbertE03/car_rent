@@ -11,7 +11,7 @@ export const cars = [
     photos: {
       front: '/red_suzuki_ignis_defrente.webp',
       side: '/red_suzuki_ignis_delado.webp',
-      main: "/rojo.png",
+      main: "/rojo.webp",
       back: '/red_suzuki_ignis_detras.webp',
     },
     description:
@@ -35,10 +35,10 @@ export const cars = [
     available: true,
     pricePerDay: 45,
     photos: {
-      front: '/gold_suzuki_defrente.png',
-      side: '/gold_suzuki_delado.png',
-      main: "/oro.png",
-      back: '/gold_suzuki_detras.png',
+      front: '/gold_suzuki_defrente.webp',
+      side: '/gold_suzuki_delado.webp',
+      main: "/oro2.webp",
+      back: '/gold_suzuki_detras.webp',
     },
     description:
       'Well-maintained Suzuki Ignis 2016 in elegant Gold. Perfect for city driving with great fuel economy and compact design.',
@@ -64,7 +64,7 @@ export const cars = [
     photos: {
       front: '/white_suziki_ignis_defrente.webp',
       side: '/white_suziki_ignis_delado.webp',
-      main: '/blanco.png',
+      main: '/blanco.webp',
       back: '/white_suziki_ignis_detras.webp',
     },
     description:
@@ -88,10 +88,10 @@ export const cars = [
     available: true,
     pricePerDay: 45,
     photos: {
-      front: '/gold_suzuki_defrente.png',
-      side: '/gold_suzuki_delado.png',
-      main: "/oro.png",
-      back: '/gold_suzuki_detras.png',
+      front: '/gold_suzuki_defrente.webp',
+      side: '/gold_suzuki_delado.webp',
+      main: "/oro.webp",
+      back: '/gold_suzuki_detras.webp',
     },
     description:
       'Another elegant Gold Suzuki Ignis 2016. Reliable, fuel-efficient, and ready to take you wherever you need to go.',
@@ -116,7 +116,7 @@ export const cars = [
     photos: {
       front: '/turquoise_suzuki_iggnis_defrente.webp',
       side: '/turquoise_suzuki_iggnis_delado.webp',
-      main: '/Azul.png',
+      main: '/Azul.webp',
       back: '/turquoise_suzuki_iggnis_detras.webp',
     },
     description:
@@ -140,10 +140,10 @@ export const cars = [
     available: true,
     pricePerDay: 50,
     photos: {
-      front: '/nissan_cube_z12_defrente.png',
-      side: '/nissan_cube_z12_delado.png',
-      main: "/cubo.png",
-      back: '/nissan_cube_z12_detras.png',
+      front: '/nissan_cube_z12_defrente.webp',
+      side: '/nissan_cube_z12_delado.webp',
+      main: "/cubo.webp",
+      back: '/nissan_cube_z12_detras.webp',
     },
     description:
       'Spacious and quirky Nissan Cube in Brown. Currently on long-term rental — check back soon for availability.',
