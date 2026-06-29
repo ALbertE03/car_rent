@@ -129,6 +129,31 @@ const id = brand.toLowerCase();
     }
   }
 
+  @media (min-width: 1440px) {
+    .galeria-wrapper {
+      max-width: 1600px;
+    }
+
+    .galeria {
+      min-height: 480px;
+      padding: 30px 5px 50px;
+    }
+
+    .galeria::after {
+      width: 100px;
+      height: 4px;
+      bottom: 38px;
+    }
+
+    :global(.car-card) {
+      margin-left: -80px;
+    }
+
+    :global(.car-card:first-child) {
+      margin-left: 0;
+    }
+  }
+
   @media (max-width: 768px) {
     .car-section {
       padding: 20px 0; /* Removing side padding so it spans full width */
