@@ -1,19 +1,10 @@
 ---
 import CarCard from "./CarCard.astro";
+import type { Car } from "../data/cars";
 
 export interface Props {
   brand: string;
-  cars: Array<{
-    slug: string;
-    color: string;
-    model: string;
-    brand: string;
-    year: number;
-    plate: string;
-    pricePerDay: number;
-    available: boolean;
-    photos: { main: string };
-  }>;
+  cars: Array<Car>;
 }
 
 const { brand, cars } = Astro.props;

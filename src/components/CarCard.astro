@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 export interface Props {
   slug: string;
   color: string;
@@ -27,7 +26,7 @@ const {
 
 <a href={`/cars/${slug}`} class="car-card">
   <div class="card-image">
-    <Image
+    <img
       src={photos.main}
       alt={`${color} ${brand} ${model} ${year}`}
       width="240"

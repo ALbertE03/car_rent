@@ -23,3 +23,17 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.DS_Store
+.env
+*.lock

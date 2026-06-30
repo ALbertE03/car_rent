@@ -1,0 +1,734 @@
+---
+import type { Car } from "../data/cars";
+
+export interface Props {
+  car: Car;
+}
+
+const { car } = Astro.props;
+const bookedJson = JSON.stringify(car.bookedDates);
+---
+
+<section class="booking-section" id="booking">
+  <div class="booking-container">
+    <div class="booking-header">
+      <h2>Book This Vehicle</h2>
+      <p class="booking-subtitle">
+        Select your dates and reserve online
+      </p>
+    </div>
+
+    <div class="booking-layout">
+      <div class="calendar-panel">
+        <div class="calendar-nav">
+          <button id="prevMonth" class="cal-btn" aria-label="Previous month">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <span id="calMonth" class="cal-month-label"></span>
+          <button id="nextMonth" class="cal-btn" aria-label="Next month">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+        <div class="cal-grid" id="calGrid">
+          <span class="cal-day-header">Sun</span>
+          <span class="cal-day-header">Mon</span>
+          <span class="cal-day-header">Tue</span>
+          <span class="cal-day-header">Wed</span>
+          <span class="cal-day-header">Thu</span>
+          <span class="cal-day-header">Fri</span>
+          <span class="cal-day-header">Sat</span>
+        </div>
+        <div class="cal-legend">
+          <span><span class="dot available"></span> Available</span>
+          <span><span class="dot booked"></span> Booked</span>
+          <span><span class="dot selected"></span> Your stay</span>
+        </div>
+      </div>
+
+      <div class="booking-details">
+        <div class="selected-dates">
+          <div class="date-field">
+            <label>Check-in</label>
+            <span id="checkIn" class="date-value">Select a date</span>
+          </div>
+          <div class="date-field">
+            <label>Check-out</label>
+            <span id="checkOut" class="date-value">—</span>
+          </div>
+        </div>
+
+        <div class="days-selector">
+          <label>Number of days</label>
+          <div class="days-control">
+            <button id="decDays" class="days-btn" type="button">−</button>
+            <span id="dayCount" class="days-value">1</span>
+            <button id="incDays" class="days-btn" type="button">+</button>
+          </div>
+        </div>
+
+        <div class="price-breakdown">
+          <div class="price-row">
+            <span>${car.pricePerDay} &times; <span id="calcDays">1</span> day(s)</span>
+            <span>$<span id="subtotal">{car.pricePerDay}</span></span>
+          </div>
+          <div class="price-row total">
+            <span>Total</span>
+            <span>$<span id="total">{car.pricePerDay}</span></span>
+          </div>
+        </div>
+
+        <div id="stripeSection" class="stripe-section" style="display:none">
+          <div id="cardElement"></div>
+          <button id="payBtn" class="pay-btn" disabled type="button">
+            <span id="payText">Reserve & Pay</span>
+            <span id="payLoader" class="loader" style="display:none"></span>
+          </button>
+          <p id="stripeError" class="stripe-error"></p>
+        </div>
+
+        <div id="noDatesMsg" class="no-dates">
+          <p>Select a start date on the calendar to continue</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="bookingData" data-booked='{bookedJson}' data-price="{car.pricePerDay}" data-slug="{car.slug}" style="display:none"></div>
+</section>
+
+<script>
+  const el = document.getElementById("bookingData") as HTMLDivElement;
+  const bookedDates: Array<{start: string; end: string}> = JSON.parse(el.dataset.booked || "[]");
+  const pricePerDay = parseInt(el.dataset.price || "0");
+  const carSlug = el.dataset.slug || "";
+
+  let currentMonth = new Date().getMonth();
+  let currentYear = new Date().getFullYear();
+  let startDate: Date | null = null;
+  let dayCount = 1;
+
+  const calGrid = document.getElementById("calGrid") as HTMLDivElement;
+  const calMonth = document.getElementById("calMonth") as HTMLSpanElement;
+  const checkIn = document.getElementById("checkIn") as HTMLSpanElement;
+  const checkOut = document.getElementById("checkOut") as HTMLSpanElement;
+  const dayCountEl = document.getElementById("dayCount") as HTMLSpanElement;
+  const calcDays = document.getElementById("calcDays") as HTMLSpanElement;
+  const subtotal = document.getElementById("subtotal") as HTMLSpanElement;
+  const total = document.getElementById("total") as HTMLSpanElement;
+  const stripeSection = document.getElementById("stripeSection") as HTMLDivElement;
+  const noDatesMsg = document.getElementById("noDatesMsg") as HTMLDivElement;
+
+  function isBooked(dateStr: string) {
+    return bookedDates.some((b) => dateStr >= b.start && dateStr <= b.end);
+  }
+
+  function formatDate(date: Date) {
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function toDateStr(date: Date): string {
+    return date.toISOString().slice(0, 10);
+  }
+
+  function renderCalendar() {
+    const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    calMonth.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    const cells: string[] = [];
+    for (let i = 0; i < firstDay; i++) {
+      cells.push('<span class="cal-day empty"></span>');
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(currentYear, currentMonth, d);
+      const dateStr = toDateStr(date);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const booked = isBooked(dateStr);
+      const past = date < today;
+      let cls = "cal-day";
+      if (booked) cls += " booked";
+      else if (past) cls += " past";
+      else cls += " free";
+
+      if (startDate && !booked && !past) {
+        const rangeEnd = new Date(startDate);
+        rangeEnd.setDate(rangeEnd.getDate() + dayCount - 1);
+        const rangeStart = new Date(startDate);
+        if (date >= rangeStart && date <= rangeEnd) {
+          cls += " in-range";
+          if (toDateStr(date) === toDateStr(startDate)) cls += " range-start";
+          if (toDateStr(date) === toDateStr(rangeEnd)) cls += " range-end";
+        }
+      }
+
+      cells.push(`<span class="${cls}" data-date="${dateStr}">${d}</span>`);
+    }
+
+    calGrid.innerHTML = cells.join("");
+
+    document.querySelectorAll<HTMLSpanElement>(".cal-day.free, .cal-day.past").forEach((el) => {
+      el.addEventListener("click", () => {
+        const dateStr = el.dataset.date || "";
+        if (isBooked(dateStr)) return;
+        const d = new Date(dateStr + "T12:00:00");
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        if (d < today) return;
+        startDate = d;
+        checkIn.textContent = formatDate(d);
+        updateCheckOut();
+        updatePrice();
+        renderCalendar();
+      });
+    });
+  }
+
+  function updateCheckOut() {
+    if (!startDate) {
+      checkOut.textContent = "—";
+      return;
+    }
+    const end = new Date(startDate);
+    end.setDate(end.getDate() + dayCount - 1);
+    checkOut.textContent = formatDate(end);
+  }
+
+  function updatePrice() {
+    if (!startDate) {
+      stripeSection.style.display = "none";
+      noDatesMsg.style.display = "block";
+      return;
+    }
+    noDatesMsg.style.display = "none";
+    stripeSection.style.display = "block";
+
+    calcDays.textContent = String(dayCount);
+    const sub = pricePerDay * dayCount;
+    subtotal.textContent = String(sub);
+    total.textContent = String(sub);
+
+    const end = new Date(startDate);
+    end.setDate(end.getDate() + dayCount - 1);
+    const rangeEnd = toDateStr(end);
+
+    for (let i = 0; i < dayCount; i++) {
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + i);
+      if (isBooked(toDateStr(d))) {
+        (document.getElementById("payBtn") as HTMLButtonElement).disabled = true;
+        (document.getElementById("payBtn") as HTMLButtonElement).textContent = "Dates unavailable";
+        return;
+      }
+    }
+
+    (document.getElementById("payBtn") as HTMLButtonElement).disabled = false;
+    (document.getElementById("payBtn") as HTMLButtonElement).textContent = `Reserve & Pay $${sub}`;
+  }
+
+  (document.getElementById("prevMonth") as HTMLButtonElement).addEventListener("click", () => {
+    currentMonth--;
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    renderCalendar();
+  });
+
+  (document.getElementById("nextMonth") as HTMLButtonElement).addEventListener("click", () => {
+    currentMonth++;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    renderCalendar();
+  });
+
+  (document.getElementById("incDays") as HTMLButtonElement).addEventListener("click", () => {
+    dayCount++;
+    dayCountEl.textContent = String(dayCount);
+    updateCheckOut();
+    updatePrice();
+    renderCalendar();
+  });
+
+  (document.getElementById("decDays") as HTMLButtonElement).addEventListener("click", () => {
+    if (dayCount > 1) {
+      dayCount--;
+      dayCountEl.textContent = String(dayCount);
+      updateCheckOut();
+      updatePrice();
+      renderCalendar();
+    }
+  });
+
+  initStripe();
+  renderCalendar();
+  updatePrice();
+
+  async function initStripe() {
+    const pk = localStorage.getItem("stripe_pk");
+    if (!pk) {
+      (document.getElementById("payBtn") as HTMLButtonElement).disabled = true;
+      (document.getElementById("payBtn") as HTMLButtonElement).textContent = "Stripe not configured";
+      return;
+    }
+
+    if (typeof Stripe === "undefined") {
+      const script = document.createElement("script");
+      script.src = "https://js.stripe.com/v3/";
+      script.onload = setupStripe;
+      document.head.appendChild(script);
+    } else {
+      setupStripe();
+    }
+
+    async function setupStripe() {
+      try {
+        const stripe = Stripe(pk);
+        const elements = stripe.elements({ mode: "payment", currency: "usd", amount: pricePerDay * 100 });
+        const card = elements.create("card", {
+          style: {
+            base: {
+              fontSize: "16px",
+              color: "#0f172a",
+              fontFamily: "'Inter', system-ui, sans-serif",
+              "::placeholder": { color: "#94a3b8" },
+            },
+          },
+        });
+        card.mount("#cardElement");
+
+        card.on("change", (e) => {
+          (document.getElementById("payBtn") as HTMLButtonElement).disabled = !e.complete;
+        });
+
+        (document.getElementById("payBtn") as HTMLButtonElement).addEventListener("click", async (e) => {
+          e.preventDefault();
+          const payBtn = document.getElementById("payBtn") as HTMLButtonElement;
+          const payText = document.getElementById("payText") as HTMLSpanElement;
+          const payLoader = document.getElementById("payLoader") as HTMLSpanElement;
+          const stripeError = document.getElementById("stripeError") as HTMLParagraphElement;
+
+          payBtn.disabled = true;
+          payText.textContent = "Processing...";
+          payLoader.style.display = "inline-block";
+          stripeError.textContent = "";
+
+          try {
+            const { error, paymentMethod } = await stripe.createPaymentMethod({
+              elements,
+              params: {
+                billing_details: {
+                  name: "Car Rental Customer",
+                },
+              },
+            });
+
+            if (error) {
+              stripeError.textContent = error.message;
+              payBtn.disabled = false;
+              payText.textContent = "Reserve & Pay";
+              payLoader.style.display = "none";
+              return;
+            }
+
+            const backendUrl = localStorage.getItem("stripe_backend") || "/api/create-payment";
+            const res = await fetch(backendUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                paymentMethodId: paymentMethod.id,
+                car: carSlug,
+                startDate: startDate ? toDateStr(startDate) : "",
+                days: dayCount,
+                amount: pricePerDay * dayCount * 100,
+              }),
+            });
+
+            const data = await res.json();
+            if (data.error) {
+              stripeError.textContent = data.error;
+              payBtn.disabled = false;
+              payText.textContent = "Reserve & Pay";
+              payLoader.style.display = "none";
+              return;
+            }
+
+            const { error: confirmError } = await stripe.confirmPayment({
+              elements,
+              clientSecret: data.clientSecret,
+              confirmParams: {
+                return_url: window.location.origin + "/booking-confirmed",
+              },
+            });
+
+            if (confirmError) {
+              stripeError.textContent = confirmError.message;
+              payBtn.disabled = false;
+              payText.textContent = "Reserve & Pay";
+              payLoader.style.display = "none";
+            }
+          } catch (err) {
+            stripeError.textContent = "Payment could not be processed. Please try again.";
+            payBtn.disabled = false;
+            payText.textContent = "Reserve & Pay";
+            payLoader.style.display = "none";
+          }
+        });
+      } catch (err) {
+        (document.getElementById("payBtn") as HTMLButtonElement).disabled = true;
+        (document.getElementById("payBtn") as HTMLButtonElement).textContent = "Stripe configuration error";
+      }
+    }
+  }
+</script>
+
+<style>
+  .booking-section {
+    padding: 48px 0;
+  }
+
+  .booking-container {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 16px;
+    padding: 32px;
+  }
+
+  .booking-header {
+    margin-bottom: 28px;
+  }
+
+  .booking-header h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 4px;
+  }
+
+  .booking-subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+  }
+
+  .booking-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  .calendar-panel {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .calendar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .cal-btn {
+    background: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+  }
+
+  .cal-btn:hover {
+    background: white;
+    color: #0f172a;
+    border-color: #94a3b8;
+  }
+
+  .cal-month-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .cal-day-header {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    padding: 6px 0;
+    text-transform: uppercase;
+  }
+
+  .cal-day {
+    text-align: center;
+    padding: 8px 4px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: default;
+    transition: all 0.15s;
+  }
+
+  .cal-day.empty {
+    visibility: hidden;
+  }
+
+  .cal-day.free {
+    background: #f1f5f9;
+    color: #0f172a;
+    cursor: pointer;
+  }
+
+  .cal-day.free:hover {
+    background: #e2e8f0;
+  }
+
+  .cal-day.booked {
+    background: #fef2f2;
+    color: #dc2626;
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .cal-day.past {
+    background: transparent;
+    color: #cbd5e1;
+  }
+
+  .cal-day.in-range {
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 600;
+  }
+
+  .cal-day.range-start,
+  .cal-day.range-end {
+    background: #3b82f6;
+    color: white;
+    font-weight: 700;
+  }
+
+  .cal-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+    justify-content: center;
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+
+  .dot.available {
+    background: #e2e8f0;
+  }
+
+  .dot.booked {
+    background: #fca5a5;
+  }
+
+  .dot.selected {
+    background: #3b82f6;
+  }
+
+  .booking-details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .selected-dates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .date-field {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .date-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #94a3b8;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .date-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .days-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .days-selector label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .days-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .days-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.2s;
+  }
+
+  .days-btn:hover {
+    border-color: #94a3b8;
+    color: #0f172a;
+  }
+
+  .days-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    min-width: 24px;
+    text-align: center;
+  }
+
+  .price-breakdown {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #64748b;
+    padding: 6px 0;
+  }
+
+  .price-row.total {
+    border-top: 1px solid #e2e8f0;
+    margin-top: 4px;
+    padding-top: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .stripe-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #cardElement {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .pay-btn {
+    width: 100%;
+    padding: 16px;
+    background: #0f172a;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .pay-btn:hover:not(:disabled) {
+    background: #1e293b;
+  }
+
+  .pay-btn:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+  }
+
+  .stripe-error {
+    font-size: 13px;
+    color: #dc2626;
+  }
+
+  .no-dates {
+    text-align: center;
+    padding: 32px;
+    background: #f8fafc;
+    border-radius: 10px;
+    color: #94a3b8;
+    font-size: 14px;
+  }
+
+  .loader {
+    width: 20px;
+    height: 20px;
+    border: 2px solid white;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 768px) {
+    .booking-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .booking-container {
+      padding: 20px;
+    }
+
+    .selected-dates {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

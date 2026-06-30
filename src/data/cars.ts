@@ -1,5 +1,22 @@
-export const cars = [
+export interface Car {
+  slug: string;
+  color: string;
+  model: string;
+  brand: string;
+  year: number;
+  plate: string;
+  pricePerDay: number;
+  available: boolean;
+  description: string;
+  features: Array<string>;
+  specs: { engine: string, transmission: string, fuel: string, seats: number, doors: number };
+  photos: { front: string, side: string, main: string, back: string };
+  bookedDates: Array<{ start: string, end: string }>;
+}
+
+export const cars: Array<Car> = [
   {
+
     slug: 'suzuki-ignis-red-py-807',
     brand: 'Suzuki',
     model: 'Ignis',
@@ -24,6 +41,10 @@ export const cars = [
       doors: 5,
     },
     features: ['Air Conditioning', 'Power Steering', 'Bluetooth', 'CD Radio', 'ABS Brakes'],
+    bookedDates: [
+      { start: '2026-07-05', end: '2026-07-08' },
+      { start: '2026-07-15', end: '2026-07-20' },
+    ],
   },
   {
     slug: 'suzuki-ignis-gold-paq-852',
@@ -50,6 +71,9 @@ export const cars = [
       doors: 5,
     },
     features: ['Air Conditioning', 'Power Steering', 'Bluetooth', 'CD Radio', 'ABS Brakes'],
+    bookedDates: [
+      { start: '2026-07-10', end: '2026-07-13' },
+    ],
   },
 
   {
@@ -77,6 +101,9 @@ export const cars = [
       doors: 5,
     },
     features: ['Air Conditioning', 'Power Steering', 'Bluetooth', 'CD Radio', 'ABS Brakes'],
+    bookedDates: [
+      { start: '2026-07-22', end: '2026-07-28' },
+    ],
   },
   {
     slug: 'suzuki-ignis-gold-paq-853',
@@ -103,6 +130,10 @@ export const cars = [
       doors: 5,
     },
     features: ['Air Conditioning', 'Power Steering', 'Bluetooth', 'CD Radio', 'ABS Brakes'],
+    bookedDates: [
+      { start: '2026-07-02', end: '2026-07-04' },
+      { start: '2026-07-25', end: '2026-07-27' },
+    ],
   },
   {
     slug: 'suzuki-ignis-turquoise-py-808',
@@ -129,6 +160,7 @@ export const cars = [
       doors: 5,
     },
     features: ['Air Conditioning', 'Power Steering', 'Bluetooth', 'CD Radio', 'ABS Brakes'],
+    bookedDates: [],
   },
   {
     slug: 'nissan-cube-brown-pr-945',
@@ -155,16 +187,33 @@ export const cars = [
       doors: 5,
     },
     features: ['Air Conditioning', 'Power Steering', 'Bluetooth', 'CD Radio', 'ABS Brakes'],
+    bookedDates: [
+      { start: '2026-07-01', end: '2026-07-15' },
+    ],
   },
 
 ]
 
-export function getCarBySlug(slug) {
+export function getCarBySlug(slug: string) {
   return cars.find((car) => car.slug === slug)
 }
 
-export function getCarsByBrand(brand) {
+export function getCarsByBrand(brand: string) {
   return cars.filter((car) => car.brand === brand)
 }
 
 export const brands = [...new Set(cars.map((car) => car.brand))]
+
+export function isDateBooked(car: Car, date: Date): boolean {
+  const d = date.toISOString().slice(0, 10)
+  return car.bookedDates.some((b) => d >= b.start && d <= b.end)
+}
+
+export function isRangeAvailable(car: Car, start: Date, days: number): boolean {
+  for (let i = 0; i < days; i++) {
+    const d = new Date(start)
+    d.setDate(d.getDate() + i)
+    if (isDateBooked(car, d)) return false
+  }
+  return true
+}
