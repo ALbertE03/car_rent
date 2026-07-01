@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = "==3.12.11"
 dependencies = [
     "alembic==1.18.4",
-    "asyncpg>=0.30.0",
+    "aiosqlite>=0.20.0",
     "dotenv==0.9.9",
     "fastapi==0.136.3",
     "numpy==2.4.6",
@@ -20,4 +20,5 @@ dependencies = [
     "slowapi>=0.1.9",
     "sqlalchemy>=2.0.50",
     "uvicorn==0.48.0",
+    "stripe>=15.3.0",
 ]

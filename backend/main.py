@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import os
 from contextlib import asynccontextmanager
 from sqlalchemy import select
-from src.db.session import SessionLocal
+from src.db.session import SessionLocal, engine, Base
 from src.db import models
 from src.db.models import UserRole
 from src.utils import auth
@@ -20,6 +20,8 @@ admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     async with SessionLocal() as db:
         result = await db.execute(select(models.User).filter(models.User.username == "admin"))
         admin_user = result.scalars().first()
@@ -50,8 +52,7 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(429, _rate_limit_exceeded_handler)
 
-#cambiar ORIGINS
-o = os.getenv("ORIGINS",[]).split(',')
+o = os.getenv("ORIGINS","").split(',')
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -68,6 +69,10 @@ app.add_middleware(
 )
 
 app.add_middleware(SlowAPIMiddleware)
+
+@app.get("/")
+async def root():
+    return {"status": "ok", "app": "RentCars api", "docs": "/docs"}
 
 app.include_router(api_router)
 

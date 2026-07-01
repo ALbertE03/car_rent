@@ -24,7 +24,7 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-
+*.db
 __pycache__/
 *.py[oc]
 build/

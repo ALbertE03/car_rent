@@ -52,7 +52,6 @@ import SpeedInsights from "@vercel/speed-insights/astro";
 
   html {
     scroll-behavior: smooth;
-    overflow: hidden;
   }
 
   ::-webkit-scrollbar {
@@ -69,10 +68,7 @@ import SpeedInsights from "@vercel/speed-insights/astro";
     color: #0f172a;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    overflow-y: auto;
-    height: 100vh;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    min-height: 100vh;
   }
 
   img {
